@@ -12,26 +12,83 @@ JWTによる認証機能と、メモのCRUD操作、基本的な全文検索機�
 ## 必要条件
 
 -   Go 1.18 以上
+-   Node.js (npm または yarn を含む) - フロントエンド開発用
 
-## セットアップと実行
+## セットアップとローカル開発
 
-1.  リポジトリをクローンします:
-    ```bash
-    git clone <repository-url>
-    cd memo-app
-    ```
+### 1. リポジトリのクローン
+```bash
+git clone <repository-url>
+cd fast-memos # リポジトリ名に合わせてください
+```
 
-2.  依存関係をインストールします:
-    ```bash
-    go mod tidy
-    ```
+### 2. バックエンド (Go/Fiber) のセットアップと実行
+ルートディレクトリで以下を実行します:
+```bash
+# Goモジュールの依存関係をインストール
+go mod tidy
 
-3.  アプリケーションを実行します:
-    ```bash
-    go run main.go
-    ```
-    デフォルトではサーバーは `http://localhost:3000` で起動します。
-    データベースファイル `memo_app.db` がプロジェクトルートに作成されます。
+# バックエンドサーバーの起動 (ポート3000で起動)
+go run main.go
+```
+データベースファイル `memo_app.db` がプロジェクトルートに作成されます。
+
+### 3. フロントエンド (React/Vite) のセットアップと実行
+別ターミナルを開き、以下を実行します:
+```bash
+# frontend ディレクトリに移動
+cd frontend
+
+# npm パッケージの依存関係をインストール (初回のみ)
+# npm create vite 時に実行されている場合は不要なこともあります
+npm install
+
+# フロントエンド開発サーバーの起動 (通常はポート5173で起動)
+npm run dev
+```
+
+開発中は、バックエンドサーバー (例: `http://localhost:3000`) とフロントエンド開発サーバー (例: `http://localhost:5173`) を同時に実行します。フロントエンドはバックエンドのAPI (`/api/...`) にリクエストを送信します。`main.go` のCORS設定により、この連携が可能です。
+
+## Dockerでの実行
+
+Dockerがインストールされている場合、以下の方法でアプリケーションをビルド・実行できます。
+これにより、フロントエンドとバックエンドが統合された単一のイメージが作成されます。
+
+### 1. Dockerイメージのビルド
+
+プロジェクトのルートディレクトリで以下のコマンドを実行してDockerイメージをビルドします (フロントエンドのビルドも含まれます):
+```bash
+docker build -t fast-memos-app .
+```
+
+### 2. Dockerコンテナの実行
+
+ビルドしたイメージを使用してコンテナを実行します:
+```bash
+docker run -p 3000:3000 -v $(pwd)/memo_app.db:/app/memo_app.db fast-memos-app
+```
+- `-p 3000:3000`: ホストのポート3000をコンテナのポート3000にマッピングします。
+- `-v $(pwd)/memo_app.db:/app/memo_app.db`: ホストのカレントディレクトリにある `memo_app.db` をコンテナの `/app/memo_app.db` にマウントします。これによりデータベースが永続化されます。ファイルが存在しない場合は、コンテナ内でアプリケーションによって作成されます。
+  Windowsの場合は `$(pwd)` の代わりに `%cd%` を使用してください: `docker run -p 3000:3000 -v "%cd%/memo_app.db:/app/memo_app.db" fast-memos-app`
+
+### 3. Docker Composeの使用 (推奨)
+
+`docker-compose.yml` ファイルが含まれているため、以下のコマンドで簡単に起動できます:
+```bash
+docker-compose up
+```
+バックグラウンドで実行する場合は `-d` フラグを追加します:
+```bash
+docker-compose up -d
+```
+サービスを停止し、コンテナを削除するには:
+```bash
+docker-compose down
+```
+ソースコードを変更した場合は、再ビルドが必要です:
+```bash
+docker-compose up --build
+```
 
 ## APIエンドポイント
 
@@ -78,5 +135,4 @@ go test ./... -v
 -   より詳細な入力バリデーションの追加
 -   設定ファイル (`.env` や `config.json`) の導入
 -   より高度な全文検索機能 (外部検索エンジンの利用など)
--   Docker化
 -   Swagger/OpenAPIドキュメントの自動生成
