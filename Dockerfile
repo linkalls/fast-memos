@@ -23,7 +23,7 @@ RUN npm run build
 # ビルド成果物は /app/frontend/dist に作成される
 
 # ステージ2: Goビルドステージ (バックエンド)
-FROM golang:1.22-alpine AS go-builder
+FROM golang:1.24-alpine AS go-builder
 
 WORKDIR /app
 

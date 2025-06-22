@@ -6,7 +6,7 @@ import (
 	"github.com/linkalls/fast-memos/database"
 	"github.com/linkalls/fast-memos/handlers"
 
-	"github.com/gofiber/contrib/cors" // CORSミドルウェアをインポート
+	"github.com/gofiber/fiber/v2/middleware/cors" // 正しいCORSミドルウェアのインポートパス
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
