@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      # ホストのカレントディレクトリをコンテナの /app にマウントします。
+      # これにより、memo_app.db がホスト側で永続化されます。
+      # Goの実行可能ファイルはイメージに含まれるため、ソースコードの変更を
+      # 反映するには `docker-compose build` と `docker-compose up` が必要です。
+      - .:/app
+    # DockerfileでCMDが設定されているため、通常はcommandの指定は不要です。
+    # command: ["/app/main"]
+    environment:
+      # 必要に応じて環境変数をここに設定
+      # 例: GIN_MODE: release
+      # このアプリケーションでは現在環境変数を使用していませんが、例として記載。
+      # DB_PATH: /app/memo_app.db # アプリがDBパスを環境変数から読む場合など
+      PORT: 3000 # アプリがポートを環境変数から読む場合
+    # depends_on: # 他にDBサービスなどがあれば依存関係を指定
+    #   - db
+networks:
+  default:
+    driver: bridge

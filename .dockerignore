@@ -1,0 +1,26 @@
+# Git files
+.git
+.gitignore
+
+# VSCode specific
+.vscode/
+
+# Database file (should be volume mounted)
+memo_app.db
+memo_app.db-journal # SQLite journal file
+
+# Log files
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Markdown files (except README.md if needed, but generally not in app image)
+# For this project, exclude all .md files from the app image context.
+*.md
+
+# Docker files themselves are not needed in the context after they are used.
+Dockerfile
+docker-compose.yml
+.dockerignore

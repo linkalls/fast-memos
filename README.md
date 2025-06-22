@@ -33,6 +33,46 @@ JWTによる認証機能と、メモのCRUD操作、基本的な全文検索機�
     デフォルトではサーバーは `http://localhost:3000` で起動します。
     データベースファイル `memo_app.db` がプロジェクトルートに作成されます。
 
+## Dockerでの実行
+
+Dockerがインストールされている場合、以下の方法でアプリケーションをビルド・実行できます。
+
+### 1. Dockerイメージのビルド
+
+プロジェクトのルートディレクトリで以下のコマンドを実行してDockerイメージをビルドします:
+```bash
+docker build -t fast-memos-app .
+```
+
+### 2. Dockerコンテナの実行
+
+ビルドしたイメージを使用してコンテナを実行します:
+```bash
+docker run -p 3000:3000 -v $(pwd)/memo_app.db:/app/memo_app.db fast-memos-app
+```
+- `-p 3000:3000`: ホストのポート3000をコンテナのポート3000にマッピングします。
+- `-v $(pwd)/memo_app.db:/app/memo_app.db`: ホストのカレントディレクトリにある `memo_app.db` をコンテナの `/app/memo_app.db` にマウントします。これによりデータベースが永続化されます。ファイルが存在しない場合は、コンテナ内でアプリケーションによって作成されます。
+  Windowsの場合は `$(pwd)` の代わりに `%cd%` を使用してください: `docker run -p 3000:3000 -v "%cd%/memo_app.db:/app/memo_app.db" fast-memos-app`
+
+### 3. Docker Composeの使用 (推奨)
+
+`docker-compose.yml` ファイルが含まれているため、以下のコマンドで簡単に起動できます:
+```bash
+docker-compose up
+```
+バックグラウンドで実行する場合は `-d` フラグを追加します:
+```bash
+docker-compose up -d
+```
+サービスを停止し、コンテナを削除するには:
+```bash
+docker-compose down
+```
+ソースコードを変更した場合は、再ビルドが必要です:
+```bash
+docker-compose up --build
+```
+
 ## APIエンドポイント
 
 ベースURL: `http://localhost:3000/api`
@@ -78,5 +118,4 @@ go test ./... -v
 -   より詳細な入力バリデーションの追加
 -   設定ファイル (`.env` や `config.json`) の導入
 -   より高度な全文検索機能 (外部検索エンジンの利用など)
--   Docker化
 -   Swagger/OpenAPIドキュメントの自動生成
