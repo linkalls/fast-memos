@@ -9,6 +9,10 @@ import (
 	"github.com/linkalls/fast-memos/handlers"
 	"github.com/linkalls/fast-memos/models"
 
+<<<<<<< HEAD
+=======
+	"github.com/gofiber/fiber/v2/middleware/cors" // 正しいCORSミドルウェアのインポートパス
+>>>>>>> cf8f4a8a98aa49fa5312b8025b09858654ed5f54
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors" // CORSミドルウェアをインポート
 	"github.com/gofiber/fiber/v2/middleware/logger"
