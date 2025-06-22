@@ -1,10 +1,19 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Memo struct {
-	gorm.Model
-	Title   string `gorm:"not null"`
-	Content string
-	UserID  uint   // このメモを所有するユーザーのID
+	ID                  string `gorm:"primaryKey"`
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+	DeletedAt           gorm.DeletedAt `gorm:"index"`
+	Title               string         `gorm:"not null"`
+	Content             string
+	UserID              string `gorm:"index"` // UserIDをstringに変更
+	RelatedMemoIDs      []string `gorm:"-"` // DBには保存しない
+	RelatedMemoIDsStore string `gorm:"type:text;column:related_memo_ids"` // DB保存用
 }
