@@ -1,37 +1,58 @@
-# ステージ1: ビルドステージ
-FROM golang:1.22-alpine AS builder
+# ステージ1: フロントエンドビルドステージ
+FROM node:20-alpine AS frontend-builder
 
-# 作業ディレクトリを設定
+# frontendディレクトリを作業ディレクトリに設定
+WORKDIR /app/frontend
+
+# package.json と package-lock.json* (npm) または yarn.lock (yarn) をコピー
+# package-lock.json が存在すれば npm ci を使うためにワイルドカードでコピー
+COPY frontend/package.json frontend/package-lock.json* ./
+
+# npm ci は package-lock.json に基づいてクリーンインストールを行うため推奨
+# package-lock.json がない場合は npm install を実行
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+# frontendのソースコードをコピー
+COPY frontend/ ./
+
+# フロントエンドをビルド
+# VITE_API_BASE_URL は、Goサーバーから配信する場合、通常は設定不要か、
+# フロントエンド側でAPIリクエストを相対パス (`/api/...`) にすることで対応します。
+# 必要であれば ARG VITE_API_BASE_URL で定義し、`docker build --build-arg` で渡すことも可能です。
+RUN npm run build
+# ビルド成果物は /app/frontend/dist に作成される
+
+# ステージ2: Goビルドステージ (バックエンド)
+FROM golang:1.22-alpine AS go-builder
+
 WORKDIR /app
 
 # Goモジュールの依存関係をコピーしてダウンロード
-# go.mod と go.sum のみをコピーして、依存関係のレイヤーをキャッシュする
 COPY go.mod go.sum ./
 RUN go mod download
 
 # ソースコードをコピー
+# .dockerignore で frontend/node_modules などが除外されていることを前提とします。
 COPY . .
 
 # アプリケーションをビルド
-# CGO_ENABLED=0 で静的リンクされたバイナリを生成 (alpineで実行するために重要)
-# -ldflags="-w -s" でデバッグ情報を削除し、バイナリサイズを削減
 RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /app/main .
 
-# ステージ2: 実行ステージ
+# ステージ3: 最終実行ステージ
 FROM alpine:latest
 
-# ルート証明書をインストール (HTTPS通信などに必要になる場合がある)
 RUN apk --no-cache add ca-certificates
 
-# 作業ディレクトリを設定
 WORKDIR /app
 
-# ビルドステージから実行可能ファイルをコピー
-COPY --from=builder /app/main /app/main
+# Goビルドステージから実行可能ファイルをコピー
+COPY --from=go-builder /app/main /app/main
 
-# アプリケーションがリッスンするポートを公開
+# フロントエンドビルドステージからビルドされた静的ファイルをコピー
+# main.go の app.Static("/", "./frontend/dist") に対応するよう配置
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+
 EXPOSE 3000
 
 # コンテナ起動時のコマンド
-# アプリケーションはカレントディレクトリの memo_app.db を使用すると想定
 CMD ["/app/main"]

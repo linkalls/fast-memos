@@ -24,3 +24,12 @@ temp/
 Dockerfile
 docker-compose.yml
 .dockerignore
+
+# Frontend specific
+frontend/node_modules
+frontend/dist # If frontend is built locally before Docker build (usually not the case with multi-stage)
+frontend/.env* # Local environment variables for frontend (e.g. .env, .env.local)
+frontend/.eslintcache # ESLint cache
+# Add other frontend specific cache or build artifact directories if any
+# e.g. frontend/.next, frontend/.nuxt, frontend/.svelte-kit, etc. if using those frameworks.
+# For Vite, `dist` is the main one.
