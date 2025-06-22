@@ -13,7 +13,8 @@ type Memo struct {
 	DeletedAt           gorm.DeletedAt `gorm:"index"`
 	Title               string         `gorm:"not null"`
 	Content             string
-	UserID              string `gorm:"index"` // UserIDをstringに変更
-	RelatedMemoIDs      []string `gorm:"-"` // DBには保存しない
-	RelatedMemoIDsStore string `gorm:"type:text;column:related_memo_ids"` // DB保存用
+	Category            string   `gorm:"index"`                             // カテゴリを追加
+	UserID              string   `gorm:"index"`                             // UserIDをstringに変更
+	RelatedMemoIDs      []string `gorm:"-"`                                 // DBには保存しない
+	RelatedMemoIDsStore string   `gorm:"type:text;column:related_memo_ids"` // DB保存用
 }

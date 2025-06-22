@@ -1,1 +1,4 @@
-go.sum
+tmp/build-errors.log
+tmp/main
+memo_app.db
+tailwindcss

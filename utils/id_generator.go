@@ -1,10 +1,15 @@
 package utils
 
 import (
-	"github.com/google/uuid"
+	"crypto/rand"
+	"encoding/hex"
 )
 
-// GenerateID generates a new UUID v4 string.
+// GenerateID generates a random string ID
 func GenerateID() string {
-	return uuid.NewString()
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(bytes)
 }

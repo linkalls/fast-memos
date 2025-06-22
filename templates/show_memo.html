@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>メモ詳細 - Fast Memos</title>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.13/dist/turbo.es2017-umd.min.js" defer></script>
+    <link rel="stylesheet" href="/public/output.css" />
+  </head>
+  <body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center">
+    <main class="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">
+      <h2 class="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">メモ詳細</h2>
+      <div class="mb-4 flex items-center gap-2">
+        {{if .Memo.Category}}
+        <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 text-xs px-2 py-1 rounded font-semibold tracking-wide">{{.Memo.Category}}</span>
+        {{end}}
+        <span class="text-xs text-gray-400 dark:text-gray-500 ml-auto">{{.Memo.CreatedAt.Format "2006-01-02 15:04"}}</span>
+      </div>
+      <div class="prose dark:prose-invert text-gray-700 dark:text-gray-200 mb-8">{{markdown .Memo.Content}}</div>
+      <div class="flex gap-2 mt-4">
+        <a href="/memos/{{.Memo.ID}}/edit" class="flex-1 px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600 text-sm text-center transition-colors">編集</a>
+        <form action="/memos/{{.Memo.ID}}/delete" method="post" data-turbo="true" class="inline" onsubmit="return confirm('本当に削除しますか？');">
+          <button type="submit" class="flex-1 px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 text-sm transition-colors">削除</button>
+        </form>
+      </div>
+      <div class="mt-4 text-center">
+        <a href="/" class="text-blue-600 dark:text-blue-400 hover:underline">一覧に戻る</a>
+      </div>
+    </main>
+  </body>
+</html>

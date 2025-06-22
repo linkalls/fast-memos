@@ -27,7 +27,7 @@ func CheckPasswordHash(password, hash string) bool {
 // GenerateJWT はユーザーIDを含むJWTを生成します
 func GenerateJWT(userID string) (string, error) { // userIDをstringに変更
 	claims := jwt.MapClaims{
-		"user_id": userID, // userIDをそのまま使用
+		"user_id": userID,                                // userIDをそのまま使用
 		"exp":     time.Now().Add(time.Hour * 72).Unix(), // トークンの有効期限 (例: 72時間)
 		"iat":     time.Now().Unix(),
 	}
@@ -58,6 +58,11 @@ func ValidateJWT(tokenString string) (string, error) { // 戻り値をstringに�
 	}
 
 	return "", errors.New("invalid token") // 空文字列を返す
+}
+
+// ParseJWT はJWTを解析し、ユーザーID (subject) を返します
+func ParseJWT(tokenString string) (string, error) {
+	return ValidateJWT(tokenString)
 }
 
 // AuthMiddleware はJWTを検証するFiberミドルウェアです

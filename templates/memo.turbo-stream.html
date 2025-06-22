@@ -1,0 +1,19 @@
+<turbo-stream action="append" target="memos">
+  <template>
+    <div id="memo-{{.ID}}" class="bg-white dark:bg-gray-800 shadow rounded p-4">
+      <div class="flex items-center gap-2 mb-2">
+        {{if .Category}}
+        <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 text-xs px-2 py-1 rounded mb-2">{{.Category}}</span>
+        {{end}}
+        <span class="text-xs text-gray-400 dark:text-gray-500 ml-auto">{{.CreatedAt.Format "2006-01-02 15:04"}}</span>
+      </div>
+      <div class="text-gray-700 dark:text-gray-200 prose dark:prose-invert">{{markdown .Content}}</div>
+      <div class="flex gap-2 mt-4">
+        <a href="/memos/{{.ID}}/edit" class="px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600 text-sm">編集</a>
+        <form action="/memos/{{.ID}}/delete" method="post" data-turbo="true" class="inline" onsubmit="return confirm('本当に削除しますか？');">
+          <button type="submit" class="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 text-sm">削除</button>
+        </form>
+      </div>
+    </div>
+  </template>
+</turbo-stream>
