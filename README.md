@@ -41,7 +41,7 @@ JWTによる認証機能と、メモのCRUD操作、基本的な全文検索機�
 
 -   `POST /auth/register`: 新規ユーザー登録
     -   リクエストボディ: `{"username": "user", "password": "password"}`
-    -   成功レスポンス (201): `{"id": 1, "username": "user"}`
+    -   成功レスポンス (201): `{"id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "username": "user"}` (IDは文字列のUUIDになります)
 -   `POST /auth/login`: ログイン
     -   リクエストボディ: `{"username": "user", "password": "password"}`
     -   成功レスポンス (200): `{"token": "jwt_token_string"}`
@@ -51,20 +51,20 @@ JWTによる認証機能と、メモのCRUD操作、基本的な全文検索機�
 **注意:** これらのエンドポイントは認証が必要です。リクエストヘッダーに `Authorization: Bearer <jwt_token>` を含めてください。
 
 -   `POST /memos/`: 新しいメモを作成
-    -   リクエストボディ: `{"title": "My Memo", "content": "This is the content."}`
-    -   成功レスポンス (201): 作成されたメモオブジェクト
+    -   リクエストボディ: `{"title": "My Memo", "content": "This is the content.", "related_memo_ids": ["memo_id_1", "memo_id_2"]}` (related_memo_ids はオプション)
+    -   成功レスポンス (201): 作成されたメモオブジェクト (IDは文字列UUID、`relatedMemoIDs` 配列を含む)
 -   `GET /memos/`: 認証ユーザーのすべてのメモを取得
-    -   成功レスポンス (200): メモオブジェクトの配列
+    -   成功レスポンス (200): メモオブジェクトの配列 (各メモはIDが文字列UUID、`relatedMemoIDs` 配列を含む)
 -   `GET /memos/search?q=<keyword>`: メモを検索
-    -   成功レスポンス (200): 条件に一致するメモオブジェクトの配列
--   `GET /memos/:id`: 特定のメモを取得
-    -   成功レスポンス (200): メモオブジェクト
+    -   成功レスポンス (200): 条件に一致するメモオブジェクトの配列 (各メモはIDが文字列UUID、`relatedMemoIDs` 配列を含む)
+-   `GET /memos/:memo_id`: 特定のメモを取得 (`memo_id` は文字列のUUID)
+    -   成功レスポンス (200): メモオブジェクト (IDが文字列UUID、`relatedMemoIDs` 配列を含む)
     -   失敗レスポンス (404): メモが見つからない場合
--   `PUT /memos/:id`: 特定のメモを更新
-    -   リクエストボディ: `{"title": "Updated Title", "content": "Updated content."}` (一部のみでも可)
-    -   成功レスポンス (200): 更新されたメモオブジェクト
--   `DELETE /memos/:id`: 特定のメモを削除
-    -   成功レスポンス (200): `{"message": "Memo with ID X deleted successfully"}`
+-   `PUT /memos/:memo_id`: 特定のメモを更新 (`memo_id` は文字列のUUID)
+    -   リクエストボディ: `{"title": "Updated Title", "content": "Updated content.", "related_memo_ids": ["new_memo_id_1"]}` (一部のみでも可、related_memo_ids はオプションで上書き)
+    -   成功レスポンス (200): 更新されたメモオブジェクト (IDが文字列UUID、`relatedMemoIDs` 配列を含む)
+-   `DELETE /memos/:memo_id`: 特定のメモを削除 (`memo_id` は文字列のUUID)
+    -   成功レスポンス (200): `{"message": "Memo with ID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx deleted successfully"}`
 
 ## テスト
 

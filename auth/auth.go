@@ -25,9 +25,9 @@ func CheckPasswordHash(password, hash string) bool {
 }
 
 // GenerateJWT はユーザーIDを含むJWTを生成します
-func GenerateJWT(userID uint) (string, error) {
+func GenerateJWT(userID string) (string, error) { // userIDをstringに変更
 	claims := jwt.MapClaims{
-		"user_id": userID,
+		"user_id": userID, // userIDをそのまま使用
 		"exp":     time.Now().Add(time.Hour * 72).Unix(), // トークンの有効期限 (例: 72時間)
 		"iat":     time.Now().Unix(),
 	}
@@ -37,7 +37,7 @@ func GenerateJWT(userID uint) (string, error) {
 }
 
 // ValidateJWT はJWTを検証し、ユーザーIDを返します
-func ValidateJWT(tokenString string) (uint, error) {
+func ValidateJWT(tokenString string) (string, error) { // 戻り値をstringに変更
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")
@@ -46,18 +46,18 @@ func ValidateJWT(tokenString string) (uint, error) {
 	})
 
 	if err != nil {
-		return 0, err
+		return "", err // 空文字列を返す
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		userID, ok := claims["user_id"].(float64) // JWTの数値はfloat64としてデコードされる
+		userID, ok := claims["user_id"].(string) // 型アサーションをstringに変更
 		if !ok {
-			return 0, errors.New("user_id claim is not valid")
+			return "", errors.New("user_id claim is not a string or missing") // エラーメッセージ変更
 		}
-		return uint(userID), nil
+		return userID, nil
 	}
 
-	return 0, errors.New("invalid token")
+	return "", errors.New("invalid token") // 空文字列を返す
 }
 
 // AuthMiddleware はJWTを検証するFiberミドルウェアです

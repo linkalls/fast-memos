@@ -97,7 +97,11 @@ func TestRegisterUser(t *testing.T) {
 	var result map[string]interface{}
 	json.Unmarshal(body, &result)
 	assert.Equal(t, "testuser", result["username"])
-	assert.NotNil(t, result["id"])
+	userID, ok := result["id"].(string)
+	assert.True(t, ok, "User ID should be a string")
+	assert.NotEmpty(t, userID, "User ID should not be empty")
+
+	// Store the created user ID for later tests if needed, or fetch from DB
 }
 
 func TestRegisterUser_DuplicateUsername(t *testing.T) {
@@ -126,7 +130,15 @@ func TestLoginUser(t *testing.T) {
 	registerPayload := `{"username": "loginuser", "password": "password123"}`
 	reqRegister := httptest.NewRequest(http.MethodPost, "/api/auth/register", bytes.NewBufferString(registerPayload))
 	reqRegister.Header.Set("Content-Type", "application/json")
-	testApp.Test(reqRegister, -1) // タイムアウトを無効化, レスポンスチェックは省略
+	respRegister, _ := testApp.Test(reqRegister, -1) // タイムアウトを無効化
+	assert.Equal(t, http.StatusCreated, respRegister.StatusCode)
+
+	// DBから登録されたユーザーIDを取得 (テストのため)
+	var createdUser models.User
+	errUser := testDB.Where("username = ?", "loginuser").First(&createdUser).Error
+	assert.NoError(t, errUser)
+	assert.NotEmpty(t, createdUser.ID)
+
 
 	loginPayload := `{"username": "loginuser", "password": "password123"}`
 	reqLogin := httptest.NewRequest(http.MethodPost, "/api/auth/login", bytes.NewBufferString(loginPayload))
@@ -140,6 +152,12 @@ func TestLoginUser(t *testing.T) {
 	var result map[string]string
 	json.Unmarshal(body, &result)
 	assert.NotEmpty(t, result["token"])
+
+	// Verify JWT token content (user_id)
+	tokenString := result["token"]
+	validatedUserID, errToken := auth.ValidateJWT(tokenString)
+	assert.NoError(t, errToken)
+	assert.Equal(t, createdUser.ID, validatedUserID)
 }
 
 func TestLoginUser_InvalidCredentials(t *testing.T) {

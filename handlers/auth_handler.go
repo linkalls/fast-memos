@@ -4,6 +4,7 @@ import (
 	"github.com/linkalls/fast-memos/auth"
 	"github.com/linkalls/fast-memos/database"
 	"github.com/linkalls/fast-memos/models"
+	"github.com/linkalls/fast-memos/utils" // utilsパッケージをインポート
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -39,7 +40,11 @@ func RegisterUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Could not hash password", "details": err.Error()})
 	}
 
+	// Generate a new ID for the user
+	userID := utils.GenerateID() // ここでIDを生成
+
 	user := models.User{
+		ID:       userID, // 生成したIDをセット
 		Username: input.Username,
 		Password: hashedPassword,
 	}
